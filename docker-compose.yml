@@ -23,6 +23,11 @@ services:
       - "homepage.docker=my-docker"
       - "homepage.href=https://${SERVICE_NAME}.${MY_DOMAIN}"
       - "homepage.group=Applications"
+      # Custom Metadata for the Homepage
+      - "homepage.name=Project Pastebin"
+      - "homepage.icon=pastebin.png"
+      - "homepage.description=Private Pastebin Service"
+
   db:
     image: "redis:alpine"
     command: redis-server --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy ${REDIS_MAXMEMORY_POLICY:-allkeys-lru}
