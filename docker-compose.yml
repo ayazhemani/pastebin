@@ -1,0 +1,34 @@
+services:
+  web:
+    build: .
+    container_name: pastebin
+    environment:
+      - expiration_secs=86400
+      - max_paste_size=1048576
+      - max_pastes_per_ip=100
+    depends_on:
+      - db
+    restart: always
+    expose:
+      - "${PORT:-5000}"
+    networks:
+      - home-lab-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${MY_DOMAIN}`) || Host(`${SERVICE_NAME}.${DUCKDNS_SUBDOMAIN}.duckdns.org`)"
+      - "traefik.http.routers.${SERVICE_NAME}.entrypoints=websecure"
+      - "traefik.http.routers.${SERVICE_NAME}.tls.certresolver=duckdns"
+      # Homepage Dashboard Configuration
+      - "homepage.enable=true"
+      - "homepage.docker=my-docker"
+      - "homepage.href=https://${SERVICE_NAME}.${MY_DOMAIN}"
+      - "homepage.group=Applications"
+  db:
+    image: "redis:alpine"
+    command: redis-server --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy ${REDIS_MAXMEMORY_POLICY:-allkeys-lru}
+    networks:
+      - home-lab-net
+
+networks:
+  home-lab-net:
+    name: home-lab-net
